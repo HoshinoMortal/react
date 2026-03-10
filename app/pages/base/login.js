@@ -1,201 +1,136 @@
-
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { hashHistory/* , Link */ } from 'react-router'
-import { Spin, Form, Icon, Input, Button, Row, Col, message } from 'antd'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Spin, Form, Input, Button, Row, Col, message } from 'antd'
 import { regExpConfig } from '@reg'
 import { brandName } from '@config'
-import { clearGformCache2, login } from '@actions/common'
-import { /* login,  */staff, menu } from '@apis/common'
+import { clearGformCache2 } from '@actions/common'
+import { menu, staff, login } from '@apis/common'
 import Logo from '@components/logo/logo'
 import md5 from 'md5'
-import QueuiAnim from 'rc-queue-anim'
-import axios from 'axios'
 
-// import '@styles/base.less'
 import '@styles/login.less'
 
-const CancelToken = axios.CancelToken;
-const source = CancelToken.source();
+function Login() {
+  const navigate = useNavigate()
+  const [form] = Form.useForm()
+  const [loading, setLoading] = useState(false)
+  const [show, setShow] = useState(true)
 
-const FormItem = Form.Item
+  function handleSubmit(values) {
+    console.log('handleSubmit 被调用, values:', values)
+    form.validateFields().then((formValues) => {
+      console.log('表单验证成功, formValues:', formValues)
+      setLoading(true)
+      formValues.password = md5(formValues.password)
+      console.log('准备调用登录接口, 登录数据:', formValues)
+      login(formValues, (res) => {
+        console.log('登录成功, res:', res)
+        sessionStorage.setItem('token', res.data.token)
+        sessionStorage.setItem('ticket', res.data.ticket)
+        console.log('准备调用菜单接口')
+        menu({}, (response) => {
+          console.log('菜单接口成功, response:', response)
+          const nav = response.data.list || []
+          if (nav && nav[0]) {
+            sessionStorage.setItem('gMenuList', JSON.stringify(nav))
+            sessionStorage.setItem('topMenuReskey', nav[0].resKey)
+            sessionStorage.setItem('leftNav', JSON.stringify(nav))
 
-@connect((state, props) => ({
-  config: state.config,
-  loginResponse: state.loginResponse,
-}))
-@Form.create({
-  onFieldsChange(props, items) {},
-})
-
-export default class Login extends Component {
-  // 初始化页面常量 绑定事件方法
-  constructor(props, context) {
-    super(props)
-    this.state = {
-      loading: false,
-      isCertificates: false,
-      show: true,
-    }
-  }
-
-  componentDidMount() {
-    this.props.dispatch(clearGformCache2({}))
-    this.props.form.setFieldsValue({ username: 'username', password: '123456' })
-
-    // 测试取消axios请求 demo1
-    axios.post('http://localhost:1111/mock/usercenter/login', {
-      username: 'dupi',
-      password: '123',
-    }, {
-      cancelToken: source.token,
-    }).catch((error) => {
-      console.log(error)
-    })
-    // 已经封装好的取消 demo2
-    const res = menu({}, (response) => {}, (r) => {}, { cancelToken: source.token })
-
-    setTimeout(() => {
-      source.cancel('取消登录请求');
-      res.abort('取消获取菜单请求')
-    }, 500);
-  }
-
-  // #region 收缩业务代码功能
-
-  handleSubmit(e, isCertificates) {
-    e.preventDefault()
-    if (isCertificates) {
-      message.warning('证书登录功能未开通')
-      return
-    }
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        const query = this.props.form.getFieldsValue()
-        this.setState({ loading: true })
-        /* if (process.env.NODE_ENV === 'production') {
-          values.password = values.password
-        } else {
-          values.password = md5(values.password)
-        } */
-        values.password = md5(values.password)
-        this.props.dispatch(login(values, (res) => {
-          sessionStorage.setItem('token', res.data.token)
-          sessionStorage.setItem('ticket', res.data.ticket)
-          menu({}, (response) => {
-            const nav = response.data.list || []
-            if (nav && nav[0]) {
-              sessionStorage.setItem('gMenuList', JSON.stringify(nav))
-              sessionStorage.setItem('topMenuReskey', nav[0].resKey)
-              sessionStorage.setItem('leftNav', JSON.stringify(nav))
-
-              staff({ usercode: query.username }, (resp) => {
-                sessionStorage.setItem('userinfo', JSON.stringify(resp.data))
-                hashHistory.push('/')
-              }, (r) => {
-                message.warning(r.msg)
-                this.setState({
-                  loading: false,
-                })
-              })
-            }
-          }, (r) => {
-            // message.warning(r.msg)
-            this.setState({
-              loading: false,
+            console.log('准备调用用户信息接口')
+            staff({ usercode: formValues.username }, (resp) => {
+              console.log('用户信息接口成功, resp:', resp)
+              sessionStorage.setItem('userinfo', JSON.stringify(resp.data))
+              console.log('准备跳转到首页')
+              navigate('/')
+            }, (r) => {
+              console.error('用户信息接口失败, r:', r)
+              message.warning(r.msg)
+              setLoading(false)
             })
-          })
-        }, (res) => {
-          message.warning(res.msg)
-          this.setState({
-            loading: false,
-          })
-        }))
-      }
+          }
+        }, (r) => {
+          console.error('菜单接口失败, r:', r)
+          setLoading(false)
+        })
+      }, (res) => {
+        console.error('登录接口失败, res:', res)
+        message.warning(res.msg)
+        setLoading(false)
+      })
+    }).catch((error) => {
+      console.error('表单验证失败:', error)
+      message.error('请检查输入信息')
+      setLoading(false)
     })
   }
 
-  // #endregion
-
-  render() {
-    const { getFieldDecorator } = this.props.form
-    console.log(this.props.loginResponse)
-    return (
-      <div className="login-container">
-        <div className="extraLink" />
-        <div className="flexcolumn">
-          <div className="login-header" key="header">
-            <div className="slogan">
-              <QueuiAnim className="flexcolumn" type={['right', 'left']} key="p">
-                {
-                  this.state.show ? [
-                    <p key="0" className="title">{brandName}
-                      {/* <span className="en">BIG DATA</span> */}
-                    </p>,
-                  ] : null
-                }
-              </QueuiAnim>
+  return (
+    <div className="login-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="extraLink" />
+      <div className="flexcolumn" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div className="login-header" key="header" style={{ flex: 3, background: '#2d333e', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', letterSpacing: '10px', position: 'relative' }}>
+          <div className="slogan" style={{ position: 'absolute', zIndex: 1000, bottom: '40px', marginTop: '-10px', width: '100%', left: 0 }}>
+            <div className="flexcolumn">
+              {show ? [
+                <p key="0" className="title" style={{ fontSize: '50px' }}>{brandName}</p>,
+              ] : null}
             </div>
-            <Logo />
           </div>
-          <div className="login-main">
-            <QueuiAnim delay={300} type="bottom" key="row">
-              {
-                this.state.show ? [
-                  <Row key="row0">
-                    <Col span={8} />
-                    <Col span={8}>
-                      <Spin spinning={this.state.loading}>
-                        <Form onSubmit={e => this.handleSubmit(e, this.state.isCertificates)}>
-                          {!this.state.isCertificates ?
-                            (<div>
-                              <FormItem hasFeedback>
-                                {getFieldDecorator('username', {
-                                  rules: [
-                                    {
-                                      required: true, min: 4, max: 10, message: '用户名为4-10个字符',
-                                    },
-                                    { pattern: regExpConfig.policeNo, message: '账号4-10位数字或字母组成' },
-                                  ],
-                                })(<Input addonBefore={<Icon type="user" />} placeholder="请输入用户名" type="text" />)}
-                              </FormItem>
-                              <FormItem hasFeedback>
-                                {getFieldDecorator('password', {
-                                  rules: [
-                                    {
-                                      required: true, min: 6, max: 16, message: '密码为6-16个字符',
-                                    },
-                                    { pattern: regExpConfig.pwd, message: '密码由6-16位数字或者字母组成' },
-                                  ],
-                                })(<Input addonBefore={<Icon type="lock" />} placeholder="请输入密码" type="password" />)}
-                              </FormItem>
-                              <FormItem>
-                                <Button type="primary" htmlType="submit" className="cert-btn">登录</Button>
-                              </FormItem>
-                            </div>) :
-                            <FormItem>
-                              <Button type="primary" htmlType="submit">证书登录</Button>
-                            </FormItem>
-                          }
-                        </Form>
-                      </Spin>
-                    </Col>
-                    <Col span={8} />
-                  </Row>,
-                ] : null
-              }
-            </QueuiAnim>
+          <Logo />
+        </div>
+        <div className="login-main" style={{ flex: 3, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div>
+            {show ? [
+              <Row key="row0">
+                <Col span={8} />
+                <Col span={8}>
+                  <Spin spinning={loading}>
+                    <Form 
+                      form={form} 
+                      onFinish={(values) => {
+                        console.log('Form onFinish 被触发, values:', values)
+                        handleSubmit(values)
+                      }}
+                      onValuesChange={(changedValues) => {
+                        console.log('表单值变化:', changedValues)
+                      }}
+                      initialValues={{ username: 'username', password: '123456' }}
+                    >
+                      <Form.Item name="username" rules={[
+                        {
+                          required: true, min: 4, max: 10, message: '用户名为4-10个字符',
+                        },
+                        { pattern: regExpConfig.policeNo, message: '账号4-10位数字或字母组成' },
+                      ]}>
+                        <Input placeholder="请输入用户名" type="text" />
+                      </Form.Item>
+                      <Form.Item name="password" rules={[
+                        {
+                          required: true, min: 6, max: 16, message: '密码为6-16个字符',
+                        },
+                        { pattern: regExpConfig.pwd, message: '密码由6-16位数字或者字母组成' },
+                      ]}>
+                        <Input placeholder="请输入密码" type="password" />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button type="primary" htmlType="submit" className="cert-btn">登录</Button>
+                      </Form.Item>
+                    </Form>
+                  </Spin>
+                </Col>
+                <Col span={8} />
+              </Row>,
+            ] : null}
           </div>
-          <QueuiAnim component="div" className="login-footer" delay={600} type="bottom" key="footer">
-            {
-              this.state.show ? [
-                <p key="0"> 浙江七巧板信息科技股份有限公司 </p>,
-              ] : null
-            }
-
-          </QueuiAnim>
+        </div>
+        <div className="login-footer">
+          {show ? [
+            <p key="0"> 浙江xxxxxxxxxx有限公司 </p>,
+          ] : null}
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 }
+
+export default Login

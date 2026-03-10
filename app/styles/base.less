@@ -1,6 +1,8 @@
 @import "./theme.less";
 
-html,body { background-color: transparent; font-family: @font-family;font-size: @font-size-base; color: @text-color; overflow: hidden; -webkit-font-smoothing: antialiased !important;}
+html,body { background-color: transparent; font-family: @font-family;font-size: @font-size-base; color: @text-color; overflow: auto; -webkit-font-smoothing: antialiased !important; margin: 0; padding: 0;}
+html, body, #root { height: 100%; min-height: 100vh; }
+#root { display: flex; flex-direction: column; }
 table{ border-spacing: 0; border-collapse: collapse;table-layout: fixed}
 textarea{ padding: @space-sm;}
 table tr td ,table tr th{ text-align: center; padding: @space-base; line-height: normal; }
@@ -77,12 +79,12 @@ ul li,dl dt{list-style: none}
 .nodata{text-align: center; color: @text-color-secondary; padding-top:@space-big;} // 暂无数据的样式
 .ellipsis{display: block;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;flex:1 1 auto !important;}// 文本过长时省略
 .page-scrollfix{
-  .page-header{ padding-right: @space-big + @scroll-width/2;}
-  .page-content{ padding-right: @space-big + @scroll-width/2;}
-  .page-footer{ padding-right: @space-big + @scroll-width/2;}
+  .page-header{ padding-right: @space-big + (@scroll-width / 2);}
+  .page-content{ padding-right: @space-big + (@scroll-width / 2);}
+  .page-footer{ padding-right: @space-big + (@scroll-width / 2);}
   .table-scrollfix{ margin-right: -@scroll-width;}
   .ant-modal-content{
-    .ant-pagination{ margin-right: @space-big/2;}
+    .ant-pagination{ margin-right: @space-big / 2;}
   }
 }
 // 全局基础样式、reset等,有可能和antd同级，所以要放在body里面提升优先级
@@ -133,6 +135,16 @@ body{
   .ant-select-dropdown-menu-item{ line-height: @line-height-sm;}
   .ant-select-dropdown{ 
     .ant-select-dropdown-menu-item{ padding:@space-sm @space-base;}
+  }
+  // 表单输入框样式调整
+  .ant-input, .ant-select-selection, .ant-select-selection--single, .ant-select-selection__rendered{
+    background-color: @background-color-content;
+    border-color: @border-color-dark;
+    color: @text-color;
+  }
+  .ant-input:focus, .ant-select-selection:focus, .ant-select-selection:active{
+    border-color: @primary-color;
+    box-shadow: 0 0 0 2px rgba(77, 169, 236, 0.2);
   }
   .ant-btn[disabled]{
     span{ color: @text-color-secondary;} // 禁用按钮的颜色
@@ -398,7 +410,7 @@ body{
     .top-wrap{ flex: 0 0 auto;}
     .ant-layout-header{padding: 0; margin-top: @space-base;}
   }
-  .page-top-sub{ padding: 0 @space-big + @scroll-width/2 0 @space-big;}
+  .page-top-sub{ padding: 0 (@space-big + @scroll-width / 2) 0 @space-big;}
   // .ant-form-item{margin-bottom: 0;}
   .ant-table-header{ background: @component-background; flex:0 0 auto;}
   .ant-layout{background: @component-background;}
@@ -519,11 +531,13 @@ body{
 }
 
 .ant-confirm-btns{ white-space: nowrap;
+  display: flex;
+  justify-content: flex-end;
+  gap: @space-base;
   button{font-size: @font-size-base;}
-  button:first-of-type{ float: right; margin:0 0 0 @space-base;}
 }
 body button + button, 
-.ant-modal-footer button + button{margin-left: @space-base;}
+.ant-modal-footer button + button{margin-left: 0;}
 
 // 自定义icon
 .qqbicon{ display: inline-block; width: 18px; height: 18px; background-color:transparent; background-image: url(../images/icon/menu/default.png); background-repeat: no-repeat; background-position: center center; vertical-align: middle; margin-right: 10px;}

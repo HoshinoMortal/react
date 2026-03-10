@@ -1,7 +1,7 @@
 const suffix = '.json'
 const prefix = '/kjdsj'
 
-module.exports = {
+export default {
   [`${prefix}/dataManage/buildingAddress/fetchHouseCheckList${suffix}`]: function (mockData, request) {
     let jd = 120.000000000001
     let wd = 36.26404109130858

@@ -2,8 +2,6 @@
 import React, { Component } from 'react'
 import { Tree } from 'antd'
 
-const { TreeNode } = Tree
-
 export default class TreeList extends Component {
   constructor(props) {
     super(props)
@@ -19,9 +17,9 @@ export default class TreeList extends Component {
 
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.curDeptCode !== this.props.curDeptCode) {
-      this.setState({ deptCode: nextProps.curDeptCode })
+  componentDidUpdate(prevProps) {
+    if (prevProps.curDeptCode !== this.props.curDeptCode) {
+      this.setState({ deptCode: this.props.curDeptCode })
     }
   }
 
@@ -32,24 +30,36 @@ export default class TreeList extends Component {
   }
 
   // 选中事件
-  handleOnSelect(info, Nodes) {
-    if (Nodes && Nodes.selectedNodes[0] && Nodes.selectedNodes[0].props && Nodes.selectedNodes[0].props.title) {
-      const { title } = Nodes.selectedNodes[0].props
-      this.props.onSelect(info, title)
+  handleOnSelect = (selectedKeys, info) => {
+    if (info && info.selectedNodes && info.selectedNodes[0] && info.selectedNodes[0].title) {
+      const { title } = info.selectedNodes[0]
+      this.props.onSelect(selectedKeys, title)
     } else {
       this.props.onSelect()
     }
   }
 
+  // 转换树形数据
+  getTreeData = (data = []) => {
+    return data.map((item) => {
+      if (item.children && item.children.length) {
+        return {
+          key: item.deptCode,
+          title: item.deptName,
+          children: this.getTreeData(item.children)
+        }
+      }
+      return {
+        key: item.deptCode,
+        title: item.deptName
+      }
+    })
+  }
+
   render() {
     const { trees } = this.props
-    const loop = (data = []) => data.map((item) => {
-      if (item.children && item.children.length) {
-        return <TreeNode key={item.deptCode} title={item.deptName}>{loop(item.children)}</TreeNode>
-      }
-      return <TreeNode key={item.deptCode} title={item.deptName} />
-    })
-    const treeNodes = loop(trees)
+    const treeData = this.getTreeData(trees)
+    const selectedKeys = this.state.deptCode ? [this.state.deptCode] : []
 
     return (
       <div>
@@ -57,10 +67,9 @@ export default class TreeList extends Component {
           onSelect={this.handleOnSelect}
           onExpand={this.onExpand}
           defaultExpandedKeys={this.state.defaultExpandedKeys}
-          selectedKeys={[this.state.deptCode]}
-        >
-          {treeNodes}
-        </Tree>
+          selectedKeys={selectedKeys}
+          treeData={treeData}
+        />
       </div>
     )
   }

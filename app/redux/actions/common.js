@@ -1,17 +1,8 @@
-
-import { createAction } from 'redux-actions'
 import * as common from '@apis/common'
 import { createAjaxAction } from '@configs/common'
+import { requestLogin, receiveLogin } from '@reducers/common'
+import { setGformCache2, clearGformCache2 } from '@reducers/common'
 
+export const login = createAjaxAction(common.login, requestLogin, receiveLogin)
 
-// login 登陆
-export const requestLogin = createAction('request login')
-export const recevieLogin = createAction('receive login')
-export const login = createAjaxAction(common.login, requestLogin, recevieLogin)
-
-// gFormCache gfor2.0m的缓存
-export const setGformCache2 = createAction('set gform cache2')
-export const clearGformCache2 = createAction('clear gform cache2')
-
-// socket receive
-// export const socketReceive = createAction('socketReceive')
+export { setGformCache2, clearGformCache2 }

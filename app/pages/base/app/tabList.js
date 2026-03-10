@@ -1,84 +1,59 @@
-import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { routerActions } from 'react-router-redux'
-import { is } from 'immutable'
+import React, { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 import { Tabs } from 'antd'
 import { updateTabChecked, deleteTabFromList } from '@actions/tabList'
 
-const { TabPane } = Tabs
+function TabList() {
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const tabList = useSelector((state) => state.tabListResult)
 
-@connect(
-  (state, props) => ({ tabList: state.tabListResult }),
-  dispatch => ({
-    actions: bindActionCreators(routerActions, dispatch),
-    dispatch: dispatch,
-  }),
-)
-export default class TabList extends Component {
-  constructor(props) {
-    super(props)
-    this.onChange = this.onChange.bind(this);
-    this.onEdit = this.onEdit.bind(this);
-  }
-  componentDidMount() {
-    // console.log('this.props', this.props);
-  }
-  onChange(activeKey) {
-    const { actions } = this.props;
-    this.props.dispatch(updateTabChecked({ activeKey: activeKey }))
-    actions.push(activeKey)
-  }
-  onEdit(targetKey, action) {
-    this[action](targetKey);
-  }
-  remove(targetKey) {
-    const { actions, tabList } = this.props;
+  const onChange = useCallback((activeKey) => {
+    dispatch(updateTabChecked({ activeKey }))
+    navigate(activeKey)
+  }, [dispatch, navigate])
+
+  const onEdit = useCallback((targetKey, action) => {
+    if (action === 'remove') {
+      remove(targetKey)
+    }
+  }, [])
+
+  const remove = useCallback((targetKey) => {
     let delIndex
     let activeKey
 
     if (targetKey === tabList.activeKey) {
       tabList.list.map((tab, index) => {
-        // eslint-disable-next-line
-        tab.key === targetKey ? delIndex = index : null;
-      });
-      // eslint-disable-next-line no-nested-ternary
+        if (tab.key === targetKey) {
+          delIndex = index
+        }
+      })
       activeKey = tabList.list[delIndex + 1] ?
         tabList.list[delIndex + 1].key : (tabList.list[delIndex - 1] ?
-          tabList.list[delIndex - 1].key : '');
-      actions.push(activeKey);
+          tabList.list[delIndex - 1].key : '')
+      navigate(activeKey)
     }
-    this.props.dispatch(deleteTabFromList({ targetKey: targetKey }));
-  }
-  shouldComponentUpdate(nextProps, nextState) {
-    const thisProps = this.props || {};
+    dispatch(deleteTabFromList({ targetKey }))
+  }, [tabList, navigate, dispatch])
 
-    if (Object.keys(thisProps).length !== Object.keys(nextProps).length) {
-      return true;
-    }
-    // eslint-disable-next-line no-restricted-syntax
-    for (const key in nextProps) {
-      if (thisProps[key] !== nextProps[key] || !is(thisProps[key], nextProps[key])) {
-        return true;
-      }
-    }
-    return false;
-  }
-  render() {
-    const { tabList } = this.props
-    return (
-      <Tabs
-        hideAdd
-        onChange={this.onChange}
-        activeKey={tabList.activeKey}
-        type="editable-card"
-        onEdit={this.onEdit}
-      >
-        {
-          tabList.list.map(tab =>
-            <TabPane tab={tab.title} key={tab.key}>{tab.content}</TabPane>)
-        }
-      </Tabs>
-    )
-  }
+  const items = tabList.list.map(tab => ({
+    key: tab.key,
+    label: tab.title,
+    children: tab.content,
+  }))
+
+  return (
+    <Tabs
+      hideAdd
+      onChange={onChange}
+      activeKey={tabList.activeKey}
+      type="editable-card"
+      onEdit={onEdit}
+      items={items}
+    />
+  )
 }
+
+export default TabList

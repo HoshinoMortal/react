@@ -1,11 +1,9 @@
-
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Editor, EditorState, RichUtils } from 'draft-js'
 import 'draft-js/dist/Draft.css'
 import '@styles/RichEditor.less'
 
-// Custom overrides for "code" style.
 const styleMap = {
   CODE: {
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
@@ -22,10 +20,7 @@ function getBlockStyle(block) {
   }
 }
 
-@connect((state, props) => ({
-  config: state.config,
-}))
-export default class app extends Component {
+class EditorPage extends Component {
   constructor(props) {
     super(props);
     this.state = { editorState: EditorState.createEmpty() };
@@ -70,8 +65,6 @@ export default class app extends Component {
   render() {
     const { editorState } = this.state;
 
-    // If the user changes block type before entering any text, we can
-    // either style the placeholder or hide it. Let's just hide it now.
     let className = 'RichEditor-editor';
     const contentState = editorState.getCurrentContent();
     if (!contentState.hasText()) {
@@ -99,7 +92,6 @@ export default class app extends Component {
             onChange={this.onChange}
             onTab={this.onTab}
             placeholder="Tell a story..."
-            // ref="editor"
             ref={(c) => { this.editor = c }}
             spellCheck
           />
@@ -108,7 +100,6 @@ export default class app extends Component {
     );
   }
 }
-
 
 class StyleButton extends React.Component {
   constructor() {
@@ -190,3 +181,9 @@ const InlineStyleControls = (props) => {
     </div>
   );
 };
+
+const mapStateToProps = (state) => ({
+  config: state.config,
+})
+
+export default connect(mapStateToProps)(EditorPage)

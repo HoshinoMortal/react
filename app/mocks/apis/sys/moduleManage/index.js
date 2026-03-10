@@ -1,12 +1,11 @@
-const fetchModuleList = require('./fetchModuleList')
-const fetchModuleDelete = require('../../success')
-const fetchModuleDetail = require('./fetchModuleDetail')
-const fetchChangeModuleStatus = require('../../success')
-const fetchModuleUpdateDetail = require('../../success')
-const fetchModuleAdd = require('../../success')
+import fetchModuleList from './fetchModuleList.js'
+import fetchModuleDelete from '../../success.js'
+import fetchModuleDetail from './fetchModuleDetail.js'
+import fetchChangeModuleStatus from '../../success.js'
+import fetchModuleUpdateDetail from '../../success.js'
+import fetchModuleAdd from '../../success.js'
 
-
-module.exports = {
+export default {
   fetchModuleList,
   fetchModuleDelete,
   fetchModuleDetail,

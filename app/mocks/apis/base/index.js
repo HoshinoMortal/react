@@ -1,6 +1,6 @@
-const login = require('./login')
-const logout = require('./logout')
-const staff = require('./staff')
-const menu = require('./menu')
+import login from './login.js'
+import logout from './logout.js'
+import staff from './staff.js'
+import menu from './menu.js'
 
-module.exports = { login, logout, staff, menu }
+export default { login, logout, staff, menu }

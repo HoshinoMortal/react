@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
   data: {
     id: 1,
     username: 'admin',

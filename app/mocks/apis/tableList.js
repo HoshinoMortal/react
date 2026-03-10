@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
   data: {
     totalCount: 100,
     currentPage: 1,

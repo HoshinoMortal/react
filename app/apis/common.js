@@ -1,9 +1,139 @@
 
-import { createApi } from '@ajax'
-import { mockURL, /* baseURL, */ path } from '@config'
+import axios from 'axios'
+import { mockURL, /* baseURL, */ path } from '../configs/config'
+import { parseQueryString } from '../configs/common'
+
+const { CancelToken } = axios
 
 const prefix = 'usercenter'
 const option = { baseURL: mockURL }
+
+function createApi(api, options) {
+  const obj = parseQueryString(window.location.href)
+  let url = api
+  if (obj.key) {
+    url = `${api}?key=${obj.key}`
+    if (obj.sourceName) {
+      url = `${api}?key=${obj.key}&sourceName=${obj.sourceName}`
+    }
+  }
+  return ((api, opts) => {
+    let baseConfig = {
+      url: '/',
+      method: 'post',
+      baseURL: '',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      params: {},
+      data: {},
+      timeout: '',
+      withCredentials: true,
+      responseType: 'json',
+      validateStatus(status) {
+        return status >= 200 && status < 300
+      },
+    }
+    baseConfig = { ...baseConfig, timeout: 30000, baseURL: mockURL }
+
+    return (...rest) => {
+      const data = rest[0] || {}
+      const token = sessionStorage.getItem('token')
+      if (token) {
+        // data.token = token
+      }
+      let success = null
+      let failure = null
+      let config = null
+      for (let i = 1; i < rest.length; i += 1) {
+        if (typeof rest[i] === 'function') {
+          if (!success) {
+            success = rest[i]
+          } else {
+            failure = rest[i]
+          }
+        }
+        if (Object.prototype.toString.call(rest[i]) === '[object Object]') {
+          config = rest[i]
+        }
+      }
+
+      const hooks = {
+        abort: null,
+      }
+
+      const cancelToken = new CancelToken((c) => { hooks.abort = c })
+      
+      if (opts && (opts.baseURL.indexOf('12602') !== -1)) {
+        baseConfig.withCredentials = false
+      } else {
+        baseConfig.withCredentials = true
+      }
+      
+      axios({
+        ...baseConfig, ...opts, ...config, url: url, data, cancelToken,
+      })
+        .then(response => response.data)
+        .then((response) => {
+          switch (response.status) {
+            case 1: { success && success(response); break }
+            case 0: {
+              if (typeof failure === 'function') {
+                failure(response)
+              } else {
+                if (response.msg === '系统内部错误!') {
+                  // message.error(response.msg)
+                } else {
+                  // message.warning(response.msg)
+                }
+              }
+              break
+            }
+            case -1: {
+              if (typeof failure === 'function') {
+                failure(response)
+              } else {
+                // logOut(response.msg)
+              }
+              break
+            }
+            default: {
+              if (typeof failure === 'function') {
+                failure(response)
+              } else {
+                // logOut()
+              }
+            }
+          }
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) {
+            if (process.env.NODE_ENV !== 'production') {
+              console.log('Request canceled', e.message)
+            }
+          } else {
+            console.dir(e)
+            if (typeof failure === 'function') {
+              if (e.code === 'ECONNABORTED') {
+                failure({
+                  data: '',
+                  msg: '服务器连接超时',
+                  status: 0,
+                })
+              } else {
+                failure({
+                  data: '',
+                  msg: e.message,
+                  status: 0,
+                })
+              }
+            }
+          }
+        })
+      return hooks
+    }
+  })(api, options)
+}
 
 export const login = createApi(`${path}/${prefix}/login`, option) // 登陆
 export const logout = createApi(`${path}/${prefix}/logout`, option) // 登出
@@ -15,3 +145,4 @@ export const menu = createApi(`${path}/${prefix}/user/userMenu`, option) // 获�
 export const getLevel = createApi(`${path}/${prefix}/user/getLevel`, option) // 当前用户的等级
 export const getBtns = createApi(`${path}/${prefix}/resource/listByPid`, option) // 获取菜单id
 export const getAllRetrieval = createApi(`${path}/data/sys/retrieval/queryAllRetrievald`) // 获取gForm2.0头部搜索
+export const updatePwd = createApi(`${path}/${prefix}/user/updatePwd`, option) // 修改密码

@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react'
-import { Icon, Popconfirm } from 'antd'
+import { Popconfirm } from 'antd'
+import { EditOutlined, MinusCircleOutlined } from '@ant-design/icons'
 
 export default class app extends Component {
   constructor(props) {
@@ -64,12 +65,12 @@ export default class app extends Component {
         <a className="icons">
           {
             btnRights.edit ?
-              <Icon title="修改角色" type="edit" onClick={() => this.roleModify(item.id)} /> : null
+              <EditOutlined title="修改角色" onClick={() => this.roleModify(item.id)} /> : null
           }
           {
             btnRights.deleteRole ?
               <Popconfirm title="删除?" onConfirm={() => this.onDelete(item.id)}>
-                <Icon title="删除角色" className="iconMargin" type="minus-circle-o" />
+                <MinusCircleOutlined title="删除角色" className="iconMargin" />
               </Popconfirm>
               : null
           }

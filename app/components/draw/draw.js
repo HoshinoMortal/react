@@ -1,10 +1,13 @@
 
-import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
+import React, { Component, createContext, useContext } from 'react'
+import ReactDOM from 'react-dom/client'
 // import { Provider } from 'react-redux'
 import PropTypes from 'prop-types';
 // import { Form } from 'antd'
 // import configure from '../../store/configureStore'
+
+// 创建Context
+const DrawerContext = createContext()
 
 import './draw.less'
 
@@ -14,8 +17,8 @@ import './draw.less'
 // 声明组件  并对外输出
 export default class Drawer extends Component {
   // 初始化页面常量 绑定事件方法
-  constructor(props, context) {
-    super(props, context)
+  constructor(props) {
+    super(props)
     this.state = {
       // activeTab: 'pop' ,
       drawTrasformClass: '',
@@ -25,13 +28,9 @@ export default class Drawer extends Component {
     }
   }
 
-  componentWillMount() {
-    document.body.classList.add('body-drawer')
-  }
-
-
   // 组件已经加载到dom中
   componentDidMount() {
+    document.body.classList.add('body-drawer')
     const {
       visible = true,
     } = this.props
@@ -45,12 +44,8 @@ export default class Drawer extends Component {
     this.setTrasformClass()
   }
 
-  // 监测visible属性,
-  componentWillReceiveProps(nextProps) {
-
-  }
-
-  componentDidUpdate() {
+  // 监测属性变化
+  componentDidUpdate(prevProps) {
     const {
       visible = true,
     } = this.props
@@ -67,7 +62,9 @@ export default class Drawer extends Component {
     setTimeout(() => {
       // document.body.removeChild(this.popup)
       document.body.classList.remove('body-drawer')
-      ReactDOM.unmountComponentAtNode(this.popup)
+      if (this.root) {
+        this.root.unmount()
+      }
     }, 300) // 组件即将卸载掉，执行动画再卸载
   }
 
@@ -76,6 +73,7 @@ export default class Drawer extends Component {
     this.popup = document.createElement('div')
     this.popup.setAttribute('class', 'drawers')
     document.body.appendChild(this.popup)
+    this.root = ReactDOM.createRoot(this.popup)
     this.renderDrawer()
     this.setTrasformClass()
   }
@@ -113,7 +111,7 @@ export default class Drawer extends Component {
         })
         document.body.removeChild(this.popup)
         document.body.classList.remove('body-drawer')
-        ReactDOM.unmountComponentAtNode(this.popup)
+        this.root.unmount()
         this.props.onCancel()
       }, 250)
     })
@@ -156,7 +154,7 @@ export default class Drawer extends Component {
     const drawTrasformClass = _class.drawTrasformClass || this.state.drawTrasformClass
     const maskTrasformClass = _class.maskTrasformClass || this.state.maskTrasformClass
 
-    ReactDOM.render(
+    this.root.render(
       <div className="drawer-wrap">
         <div className={`${maskTrasformClass} ant-modal-mask`} onClick={() => this.removeDrawer()} />
         <div className={`${drawTrasformClass} draw ${drawerSizeClass} ${this.props.className}`}>
@@ -168,9 +166,9 @@ export default class Drawer extends Component {
               <div className="ant-modal-header">
                 <div className="ant-modal-title">{title}</div>
               </div>
-              <AntModalBody context={this.context}>
+              <div className="ant-modal-body">
                 {this.props.children}
-              </AntModalBody>
+              </div>
               {
                 footer ?
                   <div className="ant-modal-footer">
@@ -180,8 +178,7 @@ export default class Drawer extends Component {
             </div>
           </div>
         </div>
-      </div>,
-      this.popup,
+      </div>
     )
   }
 
@@ -223,27 +220,4 @@ export default class Drawer extends Component {
 }
 
 
-Drawer.contextTypes = {
-  form: PropTypes.object,
-  vertical: PropTypes.bool,
-  store: PropTypes.object,
-};
 
-class AntModalBody extends Component {
-  getChildContext() {
-    return { form: this.props.context.form, vertical: this.props.context.vertical, store: this.props.context.store }
-  }
-  render() {
-    return (
-      <div className="ant-modal-body">
-        {this.props.children}
-      </div>
-    )
-  }
-}
-
-AntModalBody.childContextTypes = {
-  form: PropTypes.object,
-  vertical: PropTypes.string,
-  store: PropTypes.object,
-}

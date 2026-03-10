@@ -7,7 +7,7 @@
 
 
 import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
+import ReactDOM from 'react-dom/client'
 import PropTypes from 'prop-types';
 // import configure from '../../store/configureStore'
 
@@ -18,8 +18,8 @@ import './draw.less'
 // 声明组件  并对外输出
 export default class Drawer extends Component {
   // 初始化页面常量 绑定事件方法
-  constructor(props, context) {
-    super(props, context)
+  constructor(props) {
+    super(props)
     this.state = {
       // activeTab: 'pop' ,
       drawTrasformClass: '',
@@ -29,17 +29,13 @@ export default class Drawer extends Component {
     }
   }
 
-  componentWillMount() {
+  // 组件已经加载到dom中
+  componentDidMount() {
     const {
       size = 'default',
     } = this.props
     this.getDrawerSize(size)
     this.setTrasformClass()
-  }
-
-
-  // 组件已经加载到dom中
-  componentDidMount() {
     const {
       visible = true,
     } = this.props
@@ -48,27 +44,16 @@ export default class Drawer extends Component {
     }
   }
 
-  // 监测visible属性,
-  componentWillReceiveProps(nextProps) {
-    /* const {
-      visible = true,
-    } = this.props
-    console.log(visible)
-    console.log(nextProps)
-    if (visible || nextProps.visible) {
-      this.initDrawer()
-    } else {
-      this.removeDrawer()
-    } */
-  }
-
-  componentDidUpdate() {
+  // 监测属性变化
+  componentDidUpdate(prevProps) {
     this.renderDrawer()
   }
 
   componentWillUnmount() {
     // <setTimeo></setTimeo>ut(() => {
-    ReactDOM.unmountComponentAtNode(this.popup)
+    if (this.root) {
+      this.root.unmount()
+    }
     // }, 300)
   }
 
@@ -76,8 +61,9 @@ export default class Drawer extends Component {
   initDrawer = () => {
     this.popup = document.createElement('div')
     this.popup.setAttribute('class', 'drawers')
-    this.renderDrawer()
     document.body.appendChild(this.popup)
+    this.root = ReactDOM.createRoot(this.popup)
+    this.renderDrawer()
     this.setTrasformClass()
   }
 
@@ -112,7 +98,7 @@ export default class Drawer extends Component {
           maskTrasformClass: '',
         })
         document.body.removeChild(this.popup)
-        ReactDOM.unmountComponentAtNode(this.popup)
+        this.root.unmount()
 
         this.props.onCancel()
       }, 200))
@@ -151,7 +137,7 @@ export default class Drawer extends Component {
       drawerSizeClass,
     } = this.state
 
-    ReactDOM.render(
+    this.root.render(
       <div className="drawer-wrap">
         <div className={`${maskTrasformClass} ant-modal-mask`} onClick={() => this.removeDrawer()} />
         <div className={`${drawTrasformClass} draw ${drawerSizeClass}`}>
@@ -163,17 +149,16 @@ export default class Drawer extends Component {
               <div className="ant-modal-header">
                 <div className="ant-modal-title">{title}</div>
               </div>
-              <AntModalBody context={this.context}>
+              <div className="ant-modal-body">
                 {this.props.children}
-              </AntModalBody>
+              </div>
               <div className="ant-modal-footer">
                 {footer}
               </div>
             </div>
           </div>
         </div>
-      </div>,
-      this.popup,
+      </div>
     )
   }
 

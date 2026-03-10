@@ -1,23 +1,14 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { hashHistory/* , Link  */ } from 'react-router'
-// import { routerActions } from 'react-router-redux'
+import { withRouter } from '@utils/withRouter'
 import { Menu, Spin } from 'antd'
-// import { updateTabList } from '@actions/tabList'
 import { clearGformCache2 } from '@actions/common'
 
-const { SubMenu } = Menu
-
-@connect((state, props) => ({
-  config: state.config,
-}))
-export default class LeftNav extends Component {
+class LeftNav extends Component {
   constructor(props, context) {
     super(props, context)
 
-    // const { pathname } = props.location
     this.state = {
-      // current: pathname,
       openKeys: [],
       menuStyle: false,
       rootSubmenuKeys: [],
@@ -29,9 +20,9 @@ export default class LeftNav extends Component {
     this.init()
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.location.pathname !== nextProps.location.pathname) {
-      this.openKeys(nextProps.location.pathname)
+  componentDidUpdate(prevProps) {
+    if (this.props.location.pathname !== prevProps.location.pathname) {
+      this.openKeys(this.props.location.pathname)
     }
   }
 
@@ -45,14 +36,10 @@ export default class LeftNav extends Component {
     this.setState({ rootSubmenuKeys: arr })
   }
 
-  // 确认当前要打开的菜单
   openKeys = (pathname) => {
-    /*
-    **计算要打开的以及菜单
-    */
     const { menu } = this.state
     const curPath = `${pathname.split('$')[0]}`.replace('/', '')
-    if (curPath === '') { // 如果是默认首页，那么就不用往下计算了
+    if (curPath === '') {
       this.setState({
         openKeys: ['sub1'],
       })
@@ -60,23 +47,18 @@ export default class LeftNav extends Component {
     }
     let count = 0
 
-    // 定义一个标签语句
-    // eslint-disable-next-line
-      jumpOut1: 
+    jumpOut1:
     for (let i = 0; i < menu.length; i += 1) {
       const item = menu[i]
       count += 1
       if (item.resKey && curPath === item.resKey.split('$')[0].replace('/', '')) {
-        // eslint-disable-next-line
-          break jumpOut1
+        break jumpOut1
       } else if (item.children && item.children.length > 0) {
-        // eslint-disable-next-line
-          jumpOut2: 
+        jumpOut2:
         for (let j = 0; j < item.children.length; j += 1) {
           const record = item.children[j]
           if (item.resKey && curPath === record.resKey.split('$')[0].replace('/', '')) {
-            // eslint-disable-next-line
-              break jumpOut1
+            break jumpOut1
           }
         }
       }
@@ -86,10 +68,9 @@ export default class LeftNav extends Component {
     })
   }
 
-  // 菜单点击事件
   _handleClick = (e) => {
     this.props.dispatch(clearGformCache2({}))
-    hashHistory.push(`/${e.key}`)
+    this.props.history.push(`/${e.key}`)
   }
 
   onOpenChange = (openKeys) => {
@@ -103,7 +84,6 @@ export default class LeftNav extends Component {
     }
   }
 
-  // 左侧菜单切换显示模式
   navMini = () => {
     this.setState({
       menuStyle: !this.state.menuStyle,
@@ -112,46 +92,44 @@ export default class LeftNav extends Component {
     })
   }
 
-  // 二级菜单的生成
-  renderLeftNav = (options) => {
+  getMenuItems = () => {
     const { menu } = this.state
     return menu.map((item, index) => {
       if (!item.children || item.children.length === 0) {
-        return (
-          <Menu.Item key={item.resKey ? item.resKey : item.id} name={item.resName} style={{ paddingLeft: 0 }}>
-            <i className={`qqbicon qqbicon-${item.resIcon}`} title={item.resName} />
-            <span className="menu-name">{item.resName}</span>
-          </Menu.Item>
-        )
-      }
-      const key = `sub${index}`
-      return (
-        <SubMenu key={key}
-          title={
+        return {
+          key: item.resKey ? item.resKey : item.id,
+          label: (
             <span>
               <i className={`qqbicon qqbicon-${item.resIcon}`} title={item.resName} />
               <span className="menu-name">{item.resName}</span>
             </span>
-          }
-        >
-          {
-            item.children.map((child, _index) =>
-              (
-                <Menu.Item key={child.resKey ? child.resKey : child.id} name={child.resName}>
-                  <i className={`qqbicon qqbicon-${child.resIcon}`} title={child.resName} />
-                  <span className="menu-name">{child.resName}</span>
-                </Menu.Item>
-              ))
-          }
-        </SubMenu>
-      )
+          )
+        }
+      }
+      const key = `sub${index}`
+      return {
+        key,
+        label: (
+          <span>
+            <i className={`qqbicon qqbicon-${item.resIcon}`} title={item.resName} />
+            <span className="menu-name">{item.resName}</span>
+          </span>
+        ),
+        children: item.children.map((child, _index) => ({
+          key: child.resKey ? child.resKey : child.id,
+          label: (
+            <span>
+              <i className={`qqbicon qqbicon-${child.resIcon}`} title={child.resName} />
+              <span className="menu-name">{child.resName}</span>
+            </span>
+          )
+        }))
+      }
     })
   }
 
-  // 左侧菜单高亮的控制
   leftMenuHighLight = () => {
     const { pathname } = this.props.location
-    // console.log(pathname)
     let selectedKeys = [pathname.replace('/', '')]
     if (pathname === '/' || pathname.indexOf('desk$/index') > -1) {
       selectedKeys = ['desk$/index']
@@ -168,20 +146,26 @@ export default class LeftNav extends Component {
             <i className="qqbicon qqbicon-navcontrol" />
           </div>
           <Spin spinning={false}>
-            <Menu onClick={this._handleClick}
+            <Menu 
+              onClick={this._handleClick}
               theme="dark"
               openKeys={openKeys}
               onOpenChange={this.onOpenChange}
               selectedKeys={this.leftMenuHighLight()}
               mode="inline"
-              inlineIndent="16"
+              inlineIndent={16}
               inlineCollapsed={menuStyle}
-            >
-              {this.renderLeftNav()}
-            </Menu>
+              items={this.getMenuItems()}
+            />
           </Spin>
         </nav>
       </div>
     )
   }
 }
+
+const mapStateToProps = (state) => ({
+  config: state.config,
+})
+
+export default withRouter(connect(mapStateToProps)(LeftNav))

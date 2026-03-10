@@ -3,14 +3,13 @@
 [![GitHub stars](https://img.shields.io/github/stars/duxianwei520/react.svg)](https://github.com/duxianwei520/react/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/duxianwei520/react.svg)](https://github.com/duxianwei520/react/issues)
 [![GitHub license](https://img.shields.io/github/license/duxianwei520/react.svg)](https://github.com/duxianwei520/react/blob/master/LICENSE)
-[![Coverage Status](https://coveralls.io/repos/github/duxianwei520/react/badge.svg)](https://coveralls.io/github/duxianwei520/react)
 
 ## 项目技术栈
 
-node10.15.3 + react@16.12.0 + redux@3.7.2 + react-router@3.2.0 + webpack@4.41.2 + axios@0.19.0 + less@2.7.1 + antd@3.25.2
+node + react@18.3.1 + redux@5.0.1 + @reduxjs/toolkit@2.2.0 + react-router-dom@6.28.1 + vite@6.0.5 + axios@1.7.9 + less@4.2.0 + antd@6.3.2 + echarts@5.6.0 + draft-js@0.11.7
 
 ## 交流
-QQ群：159697743
+QQ群：159697743（萌萌哒前端人）
 
 ## 项目运行
 
@@ -22,7 +21,7 @@ cd react (进入项目)
 
 npm install (安装依赖包)
 
-npm start (启动服务)
+npm start (启动服务，包含开发服务器和mock服务)
 
 ```
 
@@ -46,19 +45,9 @@ npm start (启动服务)
 <img src="https://github.com/duxianwei520/resource/blob/master/react/screenshots/set.gif" width="973" height="557"/>
 
 
-### webpack bundle analysis
-
-<img src="https://github.com/duxianwei520/resource/blob/master/react/screenshots/analysis.gif" width="973" height="557"/>
-
-### build dist folder
-
-<img src="https://github.com/duxianwei520/resource/blob/master/react/screenshots/dist.gif" width="973" height="557"/>
-
-
-最后的构建命令
+## 构建命令
 ```
 npm run build (正式环境的打包部署)
-npm run testing (测试环境的打包部署命令，可以根据具体需求自行配置修改)
 
 ```
 
@@ -82,7 +71,7 @@ npm run testing (测试环境的打包部署命令，可以根据具体需求自
 如果请求错误，比如说参数错误或者其他报错之类的，那status返回值就是0；
 如果status值是-1，表示登录超时，那么就会跳出登录。
 这些参数都可以根据实际情况进行调整，报错或者成功的提示信息放在msg里面返回。
-当前项目集成了完整的用户管理、角色管理、模块管理等基本的权限管理功能，小伙伴们一定要同时启动npm run mock才可以看到噢
+当前项目集成了完整的用户管理、角色管理、模块管理等基本的权限管理功能，启动npm start即可看到完整功能
 
 这个react的项目我有在跟nodejs的express框架配合做接口的开发，可以不靠后端输出数据库真实的数据，仓库地址在
 
@@ -123,14 +112,14 @@ login(){
 
 ## 功能一览
 - [√] 登录，以及登录权限控制
-- [√] 项目公用npm模块dll化
-- [√] redux完整示范
-- [√] mockjs模拟后端返回接口
-- [√] axios异步请求跨域的设置
-- [√] 实时的webpack包大小预览,方便优化
-- [√] draftjs编辑器
-- [√] cypress自动化测试
-
+- [√] Redux完整示范（使用Redux Toolkit）
+- [√] Mockjs模拟后端返回接口
+- [√] Axios异步请求跨域的设置
+- [√] DraftJS编辑器
+- [√] ECharts图表集成
+- [√] Socket.io实时通信
+- [√] 现代React Hooks支持
+- [√] Vite快速构建和热更新
 
 
 ## License
@@ -139,4 +128,4 @@ login(){
 
 
 ## 交流
-想跟其他的使用react的小伙伴们交流的话，可以加入我创建的reactQQ群：159697743
+想跟其他的使用react的小伙伴们交流的话，可以加入我创建的QQ群：159697743

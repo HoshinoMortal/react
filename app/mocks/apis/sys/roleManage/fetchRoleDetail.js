@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
   data: {
     id: 2,
     roleName: '超级管理员',

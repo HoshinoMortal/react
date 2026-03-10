@@ -1,16 +1,15 @@
-const fetchUserDepttList = require('./fetchUserDepttList')
-const fetchRoleList = require('./fetchRoleList')
-const fetchUserList = require('./fetchUserList')
-const fetchUserDetail = require('./fetchUserDetail')
-const fetchUserDetailUpdate = require('../../success')
-const fetchUserAdd = require('../../success')
-const fetchUserDelete = require('../../success')
-const fetchUserSetRole = require('../../success')
-const fetchChangeUserStatus = require('../../success')
-const synUser = require('../../success')
+import fetchUserDepttList from './fetchUserDepttList.js'
+import fetchRoleList from './fetchRoleList.js'
+import fetchUserList from './fetchUserList.js'
+import fetchUserDetail from './fetchUserDetail.js'
+import fetchUserDetailUpdate from '../../success.js'
+import fetchUserAdd from '../../success.js'
+import fetchUserDelete from '../../success.js'
+import fetchUserSetRole from '../../success.js'
+import fetchChangeUserStatus from '../../success.js'
+import synUser from '../../success.js'
 
-
-module.exports = {
+export default {
   fetchUserDepttList,
   fetchRoleList,
   fetchUserList,

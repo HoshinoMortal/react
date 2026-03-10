@@ -1,17 +1,12 @@
 import React, { Component } from 'react'
-// import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import TweenOne from 'rc-tween-one'
-import ticker from 'rc-tween-one/lib/ticker'
+import { Ticker } from 'tween-one'
 import PropTypes from 'prop-types'
 import logo from '@images/login.png'
 import './logo.css'
 
-@connect((state, props) => ({
-  config: state.config,
-}))
-
-export default class app extends Component {
+class Logo extends Component {
   static propTypes = {
     image: PropTypes.string,
     w: PropTypes.number,
@@ -22,7 +17,6 @@ export default class app extends Component {
 
   static defaultProps = {
     image: logo,
-    // className: 'logo-gather-demo',
     w: 1038,
     h: 280,
     pixSize: 20,
@@ -38,18 +32,16 @@ export default class app extends Component {
   }
 
   componentDidMount() {
-    // this.dom = ReactDOM.findDOMNode(this)
     this.dom = this.componentDom
     this.createPointData();
   }
 
   componentWillUnmount() {
-    ticker.clear(this.interval)
+    Ticker.clear(this.interval)
     this.interval = null
   }
 
   onMouseEnter = () => {
-    // !this.gather && this.updateTweenData();
     if (!this.gather) {
       this.updateTweenData();
     }
@@ -57,11 +49,10 @@ export default class app extends Component {
   };
 
   onMouseLeave = () => {
-    // this.gather && this.updateTweenData();
     if (this.gather) {
       this.updateTweenData();
     }
-    this.interval = ticker.interval(this.updateTweenData, this.intervalTime);
+    this.interval = Ticker.interval(this.updateTweenData, this.intervalTime);
   };
 
   setDataToDom(data, w, h) {
@@ -103,7 +94,7 @@ export default class app extends Component {
       children,
       boxAnim: { opacity: 0, type: 'from', duration: 800 },
     }, () => {
-      this.interval = ticker.interval(this.updateTweenData, this.intervalTime);
+      this.interval = Ticker.interval(this.updateTweenData, this.intervalTime);
     });
   }
 
@@ -164,9 +155,7 @@ export default class app extends Component {
   };
 
   updateTweenData = () => {
-    // this.dom = ReactDOM.findDOMNode(this);
     this.dom = this.componentDom
-    // this.sideBox = ReactDOM.findDOMNode(this.sideBoxComp);
     this.sideBox = document.querySelector('.right-side');
     ((this.gather && this.disperseData) || this.gatherData)();
     this.gather = !this.gather;
@@ -189,3 +178,9 @@ export default class app extends Component {
     </div>);
   }
 }
+
+const mapStateToProps = (state) => ({
+  config: state.config,
+})
+
+export default connect(mapStateToProps)(Logo)

@@ -1,15 +1,8 @@
 import React, { Component } from 'react'
-// import PropTypes from 'prop-types'
 import { Button } from 'antd'
 import { connect } from 'react-redux'
-// import {} from '@actions/xxx'
-// import Socket from '@configs/socket'
 
-@connect(store => ({
-  // socketCollection: store.socketCollection,
-}))
-
-export default class app extends Component {
+class SocketReceive extends Component {
   static defaultProps = {
   }
 
@@ -23,18 +16,10 @@ export default class app extends Component {
 
   componentDidMount() { }
 
-  // #region vscode 1.17的收缩代码块功能  业务代码
-
-
-  // #endregion
-
-  // 发送socket数据
   onClickSend = () => {
-    // Socket.dispatch({ type: 'receive/hello2' })
   }
 
   render() {
-    // const { socketCollection = {} } = this.props
     return (
       <div className="page">
         socket receive 页面示例
@@ -42,9 +27,6 @@ export default class app extends Component {
           <h5>收到数据：</h5>
           <pre>
             <code>
-              {
-                // JSON.stringify(socketCollection, null, 2)
-              }
             </code>
           </pre>
         </div>
@@ -52,3 +34,8 @@ export default class app extends Component {
     )
   }
 }
+
+const mapStateToProps = (state) => ({
+})
+
+export default connect(mapStateToProps)(SocketReceive)

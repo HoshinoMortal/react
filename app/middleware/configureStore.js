@@ -1,28 +1,28 @@
+import { configureStore } from '@reduxjs/toolkit'
+import * as tabList from '@reducers/tabList'
+import * as common from '@reducers/common'
 
-import { createStore, applyMiddleware } from 'redux'
-import thunkMiddleware from 'redux-thunk'
-import rootReducer from '@reducers'
-import { logger, /* router, */ reduxRouterMiddleware } from './index'
-
-const nextReducer = require('@reducers')
+const rootReducer = {
+  config: (state = {}) => state,
+  tabListResult: tabList.default,
+  loginResponse: common.loginResponse,
+  gFormCache2: common.gFormCache2,
+  allRetrievalResult: common.allRetrievalResult,
+}
 
 export default function configure(initialState) {
-  // console.log('initialState', initialState)
-  const create = window.devToolsExtension
-    ? window.devToolsExtension()(createStore)
-    : createStore
+  const store = configureStore({
+    reducer: rootReducer,
+    preloadedState: initialState,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: false,
+      }),
+  })
 
-  const createStoreWithMiddleware = applyMiddleware(
-    reduxRouterMiddleware,
-    thunkMiddleware,
-    logger,
-    // router,
-  )(create)
-
-  const store = createStoreWithMiddleware(rootReducer, initialState)
-
-  if (module.hot) {
-    module.hot.accept('@reducers', () => {
+  if (import.meta.hot) {
+    import.meta.hot.accept('@reducers', async () => {
+      const nextReducer = await import('@reducers')
       store.replaceReducer(nextReducer)
     })
   }

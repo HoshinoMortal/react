@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
   data: {
   },
   msg: '退出成功！',

@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
   data: {
     pageSize: 10,
     pageNo: 1,

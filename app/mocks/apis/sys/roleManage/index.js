@@ -1,16 +1,15 @@
-const fetchRoleAdd = require('../../success')
-const fetchRoleUpdate = require('../../success')
-const fetchRoleDelete = require('../../success')
-const fetchUpdateRoleRes = require('../../success')
-const fetchTreeList = require('./fetchTreeList')
-const fetchModuleListInRole = require('./fetchModuleListInRole')
-const fetchRoleDetail = require('./fetchRoleDetail')
-const fetchButtonList = require('./fetchButtonList')
-const fetchRoleDeletePeople = require('../../success')
-const fetchUpdateButton = require('../../success')
+import fetchRoleAdd from '../../success.js'
+import fetchRoleUpdate from '../../success.js'
+import fetchRoleDelete from '../../success.js'
+import fetchUpdateRoleRes from '../../success.js'
+import fetchTreeList from './fetchTreeList.js'
+import fetchModuleListInRole from './fetchModuleListInRole.js'
+import fetchRoleDetail from './fetchRoleDetail.js'
+import fetchButtonList from './fetchButtonList.js'
+import fetchRoleDeletePeople from '../../success.js'
+import fetchUpdateButton from '../../success.js'
 
-
-module.exports = {
+export default {
   fetchRoleAdd,
   fetchRoleUpdate,
   fetchRoleDelete,
